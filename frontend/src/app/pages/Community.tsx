@@ -180,6 +180,7 @@ export function Community() {
 
   const activeGroup = storyGroups.find((g) => g.userId === storyViewerUserId) ?? null;
   const activeStory = activeGroup ? activeGroup.stories[Math.min(storyViewerPos, activeGroup.stories.length - 1)] : null;
+  const activeGroupIndex = activeGroup ? storyGroups.findIndex((g) => g.userId === activeGroup.userId) : -1;
 
   const openStory = (userId: string) => {
     setStoryViewerUserId(userId);
@@ -196,7 +197,13 @@ export function Community() {
   const nextStory = () => {
     if (!activeGroup) return;
     if (storyViewerPos >= activeGroup.stories.length - 1) {
-      closeStory();
+      const nextGroup = storyGroups[activeGroupIndex + 1];
+      if (!nextGroup) {
+        closeStory();
+        return;
+      }
+      setStoryViewerUserId(nextGroup.userId);
+      setStoryViewerPos(0);
       return;
     }
     setStoryViewerPos((p) => p + 1);
@@ -229,7 +236,13 @@ export function Community() {
         const next = prev + step;
         if (next >= 100) {
           if (storyViewerPos >= activeGroup.stories.length - 1) {
-            closeStory();
+            const nextGroup = storyGroups[activeGroupIndex + 1];
+            if (!nextGroup) {
+              closeStory();
+            } else {
+              setStoryViewerUserId(nextGroup.userId);
+              setStoryViewerPos(0);
+            }
           } else {
             setStoryViewerPos((p) => p + 1);
           }
@@ -245,7 +258,7 @@ export function Community() {
         storyIntervalRef.current = null;
       }
     };
-  }, [storyViewerUserId, storyViewerPos, activeGroup]);
+  }, [storyViewerUserId, storyViewerPos, activeGroup, activeGroupIndex, storyGroups]);
 
   const renderPost = (p: (typeof topFeedPosts)[number]) => (
     <article key={p.id} className="border-b bg-white">
