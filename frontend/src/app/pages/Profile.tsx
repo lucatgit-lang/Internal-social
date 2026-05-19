@@ -1,6 +1,6 @@
 ﻿import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
-import { Grid3X3, Bookmark, UserSquare2 } from "lucide-react";
+import { Grid3X3, Bookmark, UserSquare2, Home, Search, Clapperboard, Send, UserCircle2 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "../components/ui/avatar";
 import { Button } from "../components/ui/button";
 import { toast } from "sonner";
@@ -39,7 +39,7 @@ export function Profile() {
     <div className="min-h-screen bg-white text-zinc-950">
       <SocialSidebar active="profile" />
 
-      <main className="min-w-0 w-full max-w-[980px] px-6 py-10 lg:ml-[calc(286px+max(0px,(100vw-286px-980px)/2))] xl:ml-[calc(286px+max(0px,(100vw-286px-340px-980px)/2))]">
+      <main className="min-w-0 w-full max-w-[980px] px-6 py-10 pb-20 lg:ml-[calc(286px+max(0px,(100vw-286px-980px)/2))] lg:pb-10 xl:ml-[calc(286px+max(0px,(100vw-286px-340px-980px)/2))]">
         <section className="grid grid-cols-1 gap-8 border-b pb-8 md:grid-cols-[220px_1fr]">
           <div className="flex items-start justify-center">
             <Avatar className="h-40 w-40">
@@ -146,6 +146,16 @@ export function Profile() {
           ))}
         </div>
       </aside>
+
+      <nav className="fixed bottom-0 left-0 right-0 z-20 border-t bg-white px-6 py-2 lg:hidden">
+        <div className="mx-auto flex max-w-[680px] items-center justify-between">
+          <button onClick={() => nav("/community")}><Home className="h-6 w-6" /></button>
+          <button onClick={() => nav("/community")}><Search className="h-6 w-6" /></button>
+          <button onClick={() => toast.info("Reels in arrivo")}><Clapperboard className="h-6 w-6" /></button>
+          <button onClick={() => nav("/chat")}><Send className="h-6 w-6" /></button>
+          <button onClick={() => nav("/profile")}><UserCircle2 className="h-6 w-6" /></button>
+        </div>
+      </nav>
     </div>
   );
 }

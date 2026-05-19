@@ -1,16 +1,18 @@
 ﻿import { useEffect, useMemo, useState } from "react";
-import { MessageSquare, Mail, Video, Users, Search, Phone, VideoIcon, MoreHorizontal, Paperclip, Smile, Mic, Send as SendIcon, Hash, Bell, UserPlus, Plus } from "lucide-react";
+import { MessageSquare, Mail, Video, Users, Search, Phone, VideoIcon, MoreHorizontal, Paperclip, Smile, Mic, Send as SendIcon, Hash, Bell, UserPlus, Plus, Home, Clapperboard, UserCircle2 } from "lucide-react";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "../components/ui/avatar";
 import { SocialSidebar } from "../components/navigation/SocialSidebar";
 import { getContacts, getConversations, getEmailInbox, getMessages, getNotifications, getVideoHistory, openOrCreateDirect, sendMessage } from "../api/chat";
 import { toast } from "sonner";
+import { useNavigate } from "react-router";
 
 type Tab = "chat" | "email" | "video" | "contatti";
 type Filter = "all" | "direct" | "group" | "channel";
 
 export function Chat() {
+  const nav = useNavigate();
   const [activeTab, setActiveTab] = useState<Tab>("chat");
   const [chatFilter, setChatFilter] = useState<Filter>("all");
   const [search, setSearch] = useState("");
@@ -79,7 +81,7 @@ export function Chat() {
     <div className="min-h-screen bg-background text-foreground">
       <SocialSidebar active="chat" />
 
-      <main className="lg:ml-[286px]">
+      <main className="pb-16 lg:ml-[286px] lg:pb-0">
         <div className="h-screen overflow-hidden border-l">
           <div className="flex h-full flex-col">
             <div className="flex items-center gap-2 overflow-x-auto border-b bg-card px-3 py-3 md:px-6">
@@ -234,6 +236,16 @@ export function Chat() {
           </div>
         </div>
       </main>
+
+      <nav className="fixed bottom-0 left-0 right-0 z-20 border-t bg-white px-6 py-2 lg:hidden">
+        <div className="mx-auto flex max-w-[680px] items-center justify-between">
+          <button onClick={() => nav("/community")}><Home className="h-6 w-6" /></button>
+          <button onClick={() => nav("/community")}><Search className="h-6 w-6" /></button>
+          <button onClick={() => toast.info("Reels in arrivo")}><Clapperboard className="h-6 w-6" /></button>
+          <button onClick={() => nav("/chat")}><SendIcon className="h-6 w-6" /></button>
+          <button onClick={() => nav("/profile")}><UserCircle2 className="h-6 w-6" /></button>
+        </div>
+      </nav>
     </div>
   );
 }
