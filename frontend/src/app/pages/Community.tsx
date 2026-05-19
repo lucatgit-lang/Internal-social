@@ -7,6 +7,7 @@ import {
   Clapperboard,
   Heart,
   Home,
+  Plus,
   MessageCircle,
   Search,
   Send,
@@ -147,6 +148,11 @@ export function Community() {
         toast.error("Impossibile creare contenuto");
       }
     }
+  };
+
+  const openCreateStoryModal = () => {
+    setCreateMode("story");
+    setCreateOpen(true);
   };
 
   const onPickImage: React.ChangeEventHandler<HTMLInputElement> = (e) => {
@@ -339,6 +345,14 @@ export function Community() {
 
           <div className="border-b px-3 py-3">
             <div className="flex gap-3 overflow-x-auto pb-1">
+              <button type="button" className="min-w-[72px] text-center" onClick={openCreateStoryModal}>
+                <div className="mx-auto mb-1 rounded-full bg-zinc-200 p-[2px]">
+                  <div className="flex h-16 w-16 items-center justify-center rounded-full border-2 border-white bg-zinc-100">
+                    <Plus className="h-7 w-7 text-zinc-700" />
+                  </div>
+                </div>
+                <div className="truncate text-[11px]">Crea</div>
+              </button>
               {storyGroups.map((g) => (
                 <button key={g.userId} type="button" className="min-w-[72px] text-center" onClick={() => openStory(g.userId)}>
                   <div className={`mx-auto mb-1 rounded-full p-[2px] ${g.stories.every((x) => viewedStoryIds.has(x.id)) ? "bg-zinc-300" : "bg-gradient-to-tr from-fuchsia-500 via-rose-500 to-amber-400"}`}>
