@@ -146,6 +146,41 @@ const demoUsers: DemoUser[] = [
     role: "user",
     title: "Amministrazione",
     avatarUrl: "https://i.pravatar.cc/150?u=marta-l"
+  },
+  {
+    email: "luca.ferrari@hideddy.community",
+    fullName: "Luca Ferrari",
+    role: "user",
+    title: "Produzione",
+    avatarUrl: "https://i.pravatar.cc/150?u=luca-ferrari"
+  },
+  {
+    email: "andrea.conti@hideddy.community",
+    fullName: "Andrea Conti",
+    role: "user",
+    title: "Acquisti",
+    avatarUrl: "https://i.pravatar.cc/150?u=andrea-conti"
+  },
+  {
+    email: "elena.v@hideddy.community",
+    fullName: "Elena V.",
+    role: "user",
+    title: "Customer Care",
+    avatarUrl: "https://i.pravatar.cc/150?u=elena-v"
+  },
+  {
+    email: "paolo.n@hideddy.community",
+    fullName: "Paolo Neri",
+    role: "user",
+    title: "Spedizioni",
+    avatarUrl: "https://i.pravatar.cc/150?u=paolo-neri"
+  },
+  {
+    email: "francesca.d@hideddy.community",
+    fullName: "Francesca D.",
+    role: "user",
+    title: "HR",
+    avatarUrl: "https://i.pravatar.cc/150?u=francesca-d"
   }
 ];
 
@@ -154,7 +189,14 @@ const demoStories: DemoStory[] = [
   { by: "lucia.f@hideddy.community", image: "https://images.unsplash.com/photo-1552664730-d307ca884978?w=1080", hoursToLive: 12 },
   { by: "giulia.rossi@hideddy.community", image: "https://images.unsplash.com/photo-1516321497487-e288fb19713f?w=1080", hoursToLive: 12 },
   { by: "marco.g@hideddy.community", image: "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=1080", hoursToLive: 12 },
-  { by: "antonio.r@hideddy.community", image: "https://images.unsplash.com/photo-1581092580497-e0d23cbdf1dc?w=1080", hoursToLive: 12 }
+  { by: "antonio.r@hideddy.community", image: "https://images.unsplash.com/photo-1581092580497-e0d23cbdf1dc?w=1080", hoursToLive: 12 },
+  { by: "davide.r@hideddy.community", image: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=1080", hoursToLive: 12 },
+  { by: "marta.l@hideddy.community", image: "https://images.unsplash.com/photo-1483058712412-4245e9b90334?w=1080", hoursToLive: 12 },
+  { by: "luca.ferrari@hideddy.community", image: "https://images.unsplash.com/photo-1616401784845-180882ba9ba8?w=1080", hoursToLive: 12 },
+  { by: "andrea.conti@hideddy.community", image: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=1080", hoursToLive: 12 },
+  { by: "elena.v@hideddy.community", image: "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=1080", hoursToLive: 12 },
+  { by: "paolo.n@hideddy.community", image: "https://images.unsplash.com/photo-1517048676732-d65bc937f952?w=1080", hoursToLive: 12 },
+  { by: "francesca.d@hideddy.community", image: "https://images.unsplash.com/photo-1573497161079-f3fd25cc6b90?w=1080", hoursToLive: 12 }
 ];
 
 const demoPosts: DemoPost[] = [
@@ -183,6 +225,32 @@ const demoPosts: DemoPost[] = [
     by: "lucia.f@hideddy.community",
     content: "Campionamenti completati. Domani rilascio report qualita in dashboard.",
     comments: [{ by: "sara.m@hideddy.community", text: "Grande, ti supporto sulla parte documentale." }]
+  },
+  {
+    by: "luca.ferrari@hideddy.community",
+    content: "Linea confezionamento 3 pronta. Test conclusi senza blocchi.",
+    image: "https://images.unsplash.com/photo-1565791380713-1756b9a2a5f0?w=1200",
+    comments: [{ by: "admin@hideddy.community", text: "Perfetto, aggiorna anche il canale Produzione." }]
+  },
+  {
+    by: "andrea.conti@hideddy.community",
+    content: "Ricevuti nuovi preventivi fornitori, confronto prezzi in corso.",
+    comments: [{ by: "marta.l@hideddy.community", text: "Mandami il riepilogo per amministrazione." }]
+  },
+  {
+    by: "paolo.n@hideddy.community",
+    content: "Spedizioni area centro allineate: oggi 14 consegne confermate.",
+    image: "https://images.unsplash.com/photo-1494412651409-8963ce7935a7?w=1200"
+  },
+  {
+    by: "elena.v@hideddy.community",
+    content: "Nuovo template risposta clienti attivo da oggi.",
+    comments: [{ by: "roberto.b@hideddy.community", text: "Ottimo, lo uso subito con i nuovi lead." }]
+  },
+  {
+    by: "francesca.d@hideddy.community",
+    content: "Workshop interno venerdi ore 15:00 su processi e sicurezza.",
+    image: "https://images.unsplash.com/photo-1515187029135-18ee286d815b?w=1200"
   }
 ];
 

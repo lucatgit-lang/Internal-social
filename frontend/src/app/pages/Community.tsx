@@ -39,6 +39,8 @@ export function Community() {
   const [storyProgress, setStoryProgress] = useState(0);
   const [viewedStoryIds, setViewedStoryIds] = useState<Set<string>>(new Set());
   const storyIntervalRef = useRef<number | null>(null);
+  const storyStripRef = useRef<HTMLDivElement | null>(null);
+  const suggestStripRef = useRef<HTMLDivElement | null>(null);
 
   const refresh = async () => {
     setLoading(true);
@@ -153,6 +155,10 @@ export function Community() {
   const openCreateStoryModal = () => {
     setCreateMode("story");
     setCreateOpen(true);
+  };
+
+  const scrollStrip = (ref: { current: HTMLDivElement | null }, delta: number) => {
+    ref.current?.scrollBy({ left: delta, behavior: "smooth" });
   };
 
   const onPickImage: React.ChangeEventHandler<HTMLInputElement> = (e) => {
@@ -344,7 +350,22 @@ export function Community() {
           </div>
 
           <div className="border-b px-3 py-3">
-            <div className="flex touch-pan-x gap-3 overflow-x-auto pb-1 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => scrollStrip(storyStripRef, -280)}
+                className="absolute left-0 top-1/2 z-10 hidden h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full bg-white/95 shadow lg:flex"
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </button>
+              <button
+                type="button"
+                onClick={() => scrollStrip(storyStripRef, 280)}
+                className="absolute right-0 top-1/2 z-10 hidden h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full bg-white/95 shadow lg:flex"
+              >
+                <ChevronRight className="h-4 w-4" />
+              </button>
+              <div ref={storyStripRef} className="flex touch-pan-x gap-3 overflow-x-auto pb-1 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
               <button type="button" className="min-w-[72px] text-center" onClick={openCreateStoryModal}>
                 <div className="mx-auto mb-1 rounded-full bg-zinc-200 p-[2px]">
                   <div className="flex h-16 w-16 items-center justify-center rounded-full border-2 border-white bg-zinc-100">
@@ -364,6 +385,7 @@ export function Community() {
                   <div className="truncate text-[11px]">{g.user}</div>
                 </button>
               ))}
+              </div>
             </div>
           </div>
 
@@ -389,7 +411,22 @@ export function Community() {
 
           <section className="px-3 py-4">
             <div className="mb-3 text-sm font-semibold text-zinc-600">Suggeriti per te</div>
-            <div className="-mx-3 flex touch-pan-x snap-x snap-mandatory gap-3 overflow-x-auto px-3 pb-2 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => scrollStrip(suggestStripRef, -320)}
+                className="absolute left-0 top-1/2 z-10 hidden h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full bg-white/95 shadow lg:flex"
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </button>
+              <button
+                type="button"
+                onClick={() => scrollStrip(suggestStripRef, 320)}
+                className="absolute right-0 top-1/2 z-10 hidden h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full bg-white/95 shadow lg:flex"
+              >
+                <ChevronRight className="h-4 w-4" />
+              </button>
+              <div ref={suggestStripRef} className="-mx-3 flex touch-pan-x snap-x snap-mandatory gap-3 overflow-x-auto px-3 pb-2 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
               {data.suggestions.map((s) => (
                 <div key={s.id} className="w-[220px] shrink-0 snap-start rounded-2xl border bg-white p-3">
                   <div className="mb-3 flex items-center gap-2">
@@ -412,6 +449,7 @@ export function Community() {
                   </div>
                 </div>
               ))}
+              </div>
             </div>
           </section>
 
