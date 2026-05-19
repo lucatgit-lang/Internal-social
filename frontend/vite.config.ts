@@ -1,0 +1,40 @@
+/**
+ * File Overview: vite.config.ts
+ * Scopo: implementa una porzione del comportamento applicativo in questa codebase.
+ * Ruolo: parte del modulo corrente, integrato con router/API/componenti o servizi correlati.
+ * Dipendenze rilevanti: import locali e dipendenze esterne gi? dichiarate nel file.
+ */
+
+import { defineConfig } from 'vite'
+import path from 'path'
+import tailwindcss from '@tailwindcss/vite'
+import react from '@vitejs/plugin-react'
+
+export default defineConfig({
+  plugins: [
+    // The React and Tailwind plugins are both required for Make, even if
+    // Tailwind is not being actively used – do not remove them
+    react(),
+    tailwindcss(),
+  ],
+  resolve: {
+    alias: {
+      // Alias @ to the src directory
+      '@': path.resolve(__dirname, './src'),
+    },
+  },
+  worker: {
+    format: "es",
+  },
+  server: {
+    proxy: {
+      "/api": {
+        target: "http://localhost:4000",
+        changeOrigin: true,
+      },
+    },
+  },
+
+  // File types to support raw imports. Never add .css, .tsx, or .ts files to this.
+  assetsInclude: ['**/*.svg', '**/*.csv'],
+})

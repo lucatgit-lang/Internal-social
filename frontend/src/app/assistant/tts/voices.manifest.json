@@ -1,0 +1,34 @@
+[
+  {
+    "id": "it_IT-riccardo-x_low",
+    "label": "Riccardo (IT)",
+    "description": "Italiano maschile, rapido",
+    "provider": "piper",
+    "lang": "it-IT",
+    "sampleRate": 22050
+  },
+  {
+    "id": "en_US-amy-medium",
+    "label": "Amy (EN)",
+    "description": "Inglese femminile, bilanciata",
+    "provider": "piper",
+    "lang": "en-US",
+    "sampleRate": 22050
+  },
+  {
+    "id": "en_US-ryan-medium",
+    "label": "Ryan (EN)",
+    "description": "Inglese maschile, naturale",
+    "provider": "piper",
+    "lang": "en-US",
+    "sampleRate": 22050
+  },
+  {
+    "id": "en_GB-alba-medium",
+    "label": "Alba (UK)",
+    "description": "Inglese UK femminile, chiara",
+    "provider": "piper",
+    "lang": "en-GB",
+    "sampleRate": 22050
+  }
+]
