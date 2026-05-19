@@ -52,17 +52,232 @@ export async function bootstrapDatabase(): Promise<void> {
     }
   }
 
-  const existingAdmin = await db.query<{ id: string }>(
-    "select id::text from app.users where lower(email) = lower($1) limit 1",
-    [ADMIN_EMAIL]
-  );
+  await ensureDemoData();
+}
 
-  if (!existingAdmin.rowCount) {
-    const passwordHash = await hashPassword(ADMIN_PASSWORD);
+type DemoUser = {
+  email: string;
+  fullName: string;
+  role: "admin" | "user";
+  title: string;
+  avatarUrl: string;
+};
+
+type DemoStory = {
+  by: string;
+  image: string;
+  hoursToLive: number;
+};
+
+type DemoPost = {
+  by: string;
+  content: string;
+  image?: string;
+  comments?: Array<{ by: string; text: string }>;
+};
+
+const demoUsers: DemoUser[] = [
+  {
+    email: "admin@hideddy.community",
+    fullName: "Deddy Admin",
+    role: "admin",
+    title: "Amministratore",
+    avatarUrl: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop"
+  },
+  {
+    email: "lucia.f@hideddy.community",
+    fullName: "Lucia F.",
+    role: "user",
+    title: "Responsabile Qualita",
+    avatarUrl: "https://i.pravatar.cc/150?u=lucia"
+  },
+  {
+    email: "roberto.b@hideddy.community",
+    fullName: "Roberto B.",
+    role: "user",
+    title: "Agente Centro",
+    avatarUrl: "https://i.pravatar.cc/150?u=roberto"
+  },
+  {
+    email: "supporto.it@hideddy.community",
+    fullName: "Supporto IT",
+    role: "user",
+    title: "Tecnico",
+    avatarUrl: "https://i.pravatar.cc/150?u=it"
+  },
+  {
+    email: "giulia.rossi@hideddy.community",
+    fullName: "Giulia Rossi",
+    role: "user",
+    title: "Commerciale",
+    avatarUrl: "https://images.unsplash.com/photo-1610387694365-19fafcc86d86?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=160"
+  },
+  {
+    email: "marco.g@hideddy.community",
+    fullName: "Marco G.",
+    role: "user",
+    title: "Logistica",
+    avatarUrl: "https://i.pravatar.cc/150?u=marco-g"
+  },
+  {
+    email: "antonio.r@hideddy.community",
+    fullName: "Antonio R.",
+    role: "user",
+    title: "Magazzino",
+    avatarUrl: "https://i.pravatar.cc/150?u=antonio-r"
+  },
+  {
+    email: "sara.m@hideddy.community",
+    fullName: "Sara Marchetti",
+    role: "user",
+    title: "Qualita",
+    avatarUrl: "https://i.pravatar.cc/150?u=sara-m"
+  },
+  {
+    email: "davide.r@hideddy.community",
+    fullName: "Davide Romano",
+    role: "user",
+    title: "IT",
+    avatarUrl: "https://i.pravatar.cc/150?u=davide-r"
+  },
+  {
+    email: "marta.l@hideddy.community",
+    fullName: "Marta Lombardi",
+    role: "user",
+    title: "Amministrazione",
+    avatarUrl: "https://i.pravatar.cc/150?u=marta-l"
+  }
+];
+
+const demoStories: DemoStory[] = [
+  { by: "admin@hideddy.community", image: "https://images.unsplash.com/photo-1521737604893-d14cc237f11d?w=1080", hoursToLive: 12 },
+  { by: "lucia.f@hideddy.community", image: "https://images.unsplash.com/photo-1552664730-d307ca884978?w=1080", hoursToLive: 12 },
+  { by: "giulia.rossi@hideddy.community", image: "https://images.unsplash.com/photo-1516321497487-e288fb19713f?w=1080", hoursToLive: 12 },
+  { by: "marco.g@hideddy.community", image: "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=1080", hoursToLive: 12 },
+  { by: "antonio.r@hideddy.community", image: "https://images.unsplash.com/photo-1581092580497-e0d23cbdf1dc?w=1080", hoursToLive: 12 }
+];
+
+const demoPosts: DemoPost[] = [
+  {
+    by: "giulia.rossi@hideddy.community",
+    content: "Team commerciale allineato: oggi priorita su clienti nuovi area nord.",
+    image: "https://images.unsplash.com/photo-1552664730-d307ca884978?w=1200",
+    comments: [
+      { by: "admin@hideddy.community", text: "Perfetto, aggiornatemi a fine giornata." },
+      { by: "lucia.f@hideddy.community", text: "Ricevuto, tengo monitorata anche qualita." }
+    ]
+  },
+  {
+    by: "admin@hideddy.community",
+    content: "Benvenuti nella nuova HI Deddy Community: da oggi team, chat e aggiornamenti in un unico flusso.",
+    image: "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=1200",
+    comments: [{ by: "marco.g@hideddy.community", text: "Interfaccia molto piu veloce del vecchio flusso." }]
+  },
+  {
+    by: "marco.g@hideddy.community",
+    content: "Lotto 445 in chiusura, picking list condivisa in chat interna.",
+    image: "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=1200",
+    comments: [{ by: "roberto.b@hideddy.community", text: "Ottimo, preparo il giro clienti." }]
+  },
+  {
+    by: "lucia.f@hideddy.community",
+    content: "Campionamenti completati. Domani rilascio report qualita in dashboard.",
+    comments: [{ by: "sara.m@hideddy.community", text: "Grande, ti supporto sulla parte documentale." }]
+  }
+];
+
+async function ensureDemoData(): Promise<void> {
+  const passwordHash = await hashPassword(ADMIN_PASSWORD);
+  const userIds = new Map<string, string>();
+
+  for (const user of demoUsers) {
+    const result = await db.query<{ id: string }>(
+      `insert into app.users (email, password_hash, full_name, role, title, avatar_url, bio, is_active)
+       values ($1, $2, $3, $4, $5, $6, $7, true)
+       on conflict (email) do update
+       set full_name = excluded.full_name,
+           role = excluded.role,
+           title = excluded.title,
+           avatar_url = excluded.avatar_url,
+           bio = coalesce(app.users.bio, excluded.bio),
+           is_active = true,
+           updated_at = now()
+       returning id::text`,
+      [user.email, passwordHash, user.fullName, user.role, user.title, user.avatarUrl, "hi deddy community"]
+    );
+    userIds.set(user.email, result.rows[0]!.id);
+  }
+
+  for (const story of demoStories) {
+    const authorId = userIds.get(story.by);
+    if (!authorId) continue;
+    const exists = await db.query(
+      `select 1
+       from app.stories
+       where author_id = $1::uuid and image_url = $2 and expires_at > now()
+       limit 1`,
+      [authorId, story.image]
+    );
+    if (!exists.rowCount) {
+      await db.query(
+        "insert into app.stories (author_id, image_url, expires_at) values ($1::uuid, $2, now() + ($3 || ' hours')::interval)",
+        [authorId, story.image, story.hoursToLive]
+      );
+    }
+  }
+
+  for (const post of demoPosts) {
+    const authorId = userIds.get(post.by);
+    if (!authorId) continue;
+    let postId: string | null = null;
+
+    const existingPost = await db.query<{ id: string }>(
+      `select id::text
+       from app.posts
+       where author_id = $1::uuid and content = $2
+       order by created_at asc
+       limit 1`,
+      [authorId, post.content]
+    );
+
+    if (existingPost.rowCount) {
+      postId = existingPost.rows[0]!.id;
+    } else {
+      const inserted = await db.query<{ id: string }>(
+        "insert into app.posts (author_id, content, image_url) values ($1::uuid, $2, $3) returning id::text",
+        [authorId, post.content, post.image ?? null]
+      );
+      postId = inserted.rows[0]!.id;
+    }
+
+    for (const comment of post.comments ?? []) {
+      const commentAuthorId = userIds.get(comment.by);
+      if (!commentAuthorId || !postId) continue;
+      const existingComment = await db.query(
+        `select 1
+         from app.post_comments
+         where post_id = $1::uuid and author_id = $2::uuid and content = $3
+         limit 1`,
+        [postId, commentAuthorId, comment.text]
+      );
+      if (!existingComment.rowCount) {
+        await db.query(
+          "insert into app.post_comments (post_id, author_id, content) values ($1::uuid, $2::uuid, $3)",
+          [postId, commentAuthorId, comment.text]
+        );
+      }
+    }
+  }
+
+  const adminId = userIds.get("admin@hideddy.community");
+  const luciaId = userIds.get("lucia.f@hideddy.community");
+  const giuliaId = userIds.get("giulia.rossi@hideddy.community");
+  if (adminId && luciaId && giuliaId) {
     await db.query(
-      `insert into app.users (email, password_hash, full_name, role, title, is_active)
-       values ($1, $2, $3, 'admin', $4, true)`,
-      [ADMIN_EMAIL, passwordHash, "Deddy Admin", "Amministratore"]
+      `insert into app.user_follows (follower_id, following_id)
+       values ($1::uuid, $2::uuid), ($1::uuid, $3::uuid), ($2::uuid, $1::uuid)
+       on conflict do nothing`,
+      [adminId, luciaId, giuliaId]
     );
   }
 }
