@@ -3,6 +3,7 @@ import cors from "@fastify/cors";
 import helmet from "@fastify/helmet";
 import sensible from "@fastify/sensible";
 import rateLimit from "@fastify/rate-limit";
+import type { IncomingMessage, ServerResponse } from "node:http";
 import { env } from "./config/env.js";
 import { authPlugin } from "./plugins/auth.js";
 import { ApiError } from "./lib/errors.js";
@@ -41,4 +42,18 @@ export function buildApp() {
   app.register(communityRoutes);
   app.register(chatRoutes);
   return app;
+}
+
+const vercelApp = buildApp();
+let readyPromise: Promise<unknown> | null = null;
+
+async function getVercelApp() {
+  if (!readyPromise) readyPromise = Promise.resolve(vercelApp.ready());
+  await readyPromise;
+  return vercelApp;
+}
+
+export default async function handler(req: IncomingMessage, res: ServerResponse) {
+  const app = await getVercelApp();
+  app.server.emit("request", req, res);
 }
