@@ -7,6 +7,7 @@ import type { IncomingMessage, ServerResponse } from "node:http";
 import { env } from "./config/env.js";
 import { authPlugin } from "./plugins/auth.js";
 import { ApiError } from "./lib/errors.js";
+import { bootstrapDatabase } from "./lib/bootstrap.js";
 import { healthRoutes } from "./routes/health.js";
 import { authRoutes } from "./routes/auth.js";
 import { communityRoutes } from "./routes/community.js";
@@ -48,7 +49,12 @@ const vercelApp = buildApp();
 let readyPromise: Promise<unknown> | null = null;
 
 async function getVercelApp() {
-  if (!readyPromise) readyPromise = Promise.resolve(vercelApp.ready());
+  if (!readyPromise) {
+    readyPromise = (async () => {
+      await bootstrapDatabase();
+      await vercelApp.ready();
+    })();
+  }
   await readyPromise;
   return vercelApp;
 }
