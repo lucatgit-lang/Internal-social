@@ -29,10 +29,15 @@ export function Chat() {
   const [notifications, setNotifications] = useState<Array<{ id: string; title: string; description: string | null; createdAt: string; read: boolean }>>([]);
 
   const loadCore = async () => {
-    const [conv, notif] = await Promise.all([getConversations(), getNotifications()]);
-    setConversations(conv.data);
-    setNotifications(notif.data);
-    if (!selected && conv.data[0]) setSelected(conv.data[0].id);
+    try {
+      const [conv, notif, contactRes] = await Promise.all([getConversations(), getNotifications(), getContacts()]);
+      setConversations(conv.data);
+      setNotifications(notif.data);
+      setContacts(contactRes.data);
+      if (!selected && conv.data[0]) setSelected(conv.data[0].id);
+    } catch {
+      toast.error("Impossibile caricare le chat");
+    }
   };
 
   useEffect(() => {
@@ -77,6 +82,18 @@ export function Chat() {
     setMobileThreadOpen(true);
   };
 
+  const startDirectFromContact = async (userId: string) => {
+    try {
+      const r = await openOrCreateDirect(userId);
+      setActiveTab("chat");
+      setSelected(r.data.conversationId);
+      setMobileThreadOpen(true);
+      await loadCore();
+    } catch {
+      toast.error("Impossibile avviare la conversazione");
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background text-foreground">
       <SocialSidebar active="chat" />
@@ -107,7 +124,7 @@ export function Chat() {
               <div className="p-4 text-sm text-muted-foreground">
                 {activeTab === "email" && emails.map((e) => <div key={e.id} className="mb-2 rounded border p-3"><div className="font-medium">{e.subject}</div><div className="text-xs">{e.from}</div></div>)}
                 {activeTab === "video" && videos.map((v) => <div key={v.id} className="mb-2 rounded border p-3 text-sm">{v.with} · {v.type}</div>)}
-                {activeTab === "contatti" && contacts.map((c) => <div key={c.id} className="mb-2 flex items-center justify-between rounded border p-3"><div className="flex items-center gap-2"><Avatar className="h-8 w-8"><AvatarImage src={c.avatar ?? undefined} /><AvatarFallback>{c.name[0]}</AvatarFallback></Avatar><div><div className="text-sm">{c.name}</div><div className="text-xs text-muted-foreground">{c.role}</div></div></div><Button size="sm" onClick={() => void openOrCreateDirect(c.id).then((r)=>{setActiveTab("chat"); setSelected(r.data.conversationId); setMobileThreadOpen(true);})}>+ Chat</Button></div>)}
+                {activeTab === "contatti" && contacts.map((c) => <div key={c.id} className="mb-2 flex items-center justify-between rounded border p-3"><div className="flex items-center gap-2"><Avatar className="h-8 w-8"><AvatarImage src={c.avatar ?? undefined} /><AvatarFallback>{c.name[0]}</AvatarFallback></Avatar><div><div className="text-sm">{c.name}</div><div className="text-xs text-muted-foreground">{c.role}</div></div></div><Button size="sm" onClick={() => void startDirectFromContact(c.id)}>+ Chat</Button></div>)}
               </div>
             ) : (
               <div className="flex min-h-0 flex-1">
@@ -127,22 +144,45 @@ export function Chat() {
                         <button key={f.k} onClick={() => setChatFilter(f.k)} className={`flex-1 rounded-lg py-1 text-xs ${chatFilter === f.k ? "bg-primary text-white" : "text-muted-foreground hover:bg-muted"}`}>{f.l}</button>
                       ))}
                     </div>
-                    <button className="flex w-full items-center gap-2 rounded-xl border border-dashed px-3 py-2 text-sm text-muted-foreground hover:border-primary hover:text-primary">
+                    <button
+                      className="flex w-full items-center gap-2 rounded-xl border border-dashed px-3 py-2 text-sm text-muted-foreground hover:border-primary hover:text-primary"
+                      onClick={() => setActiveTab("contatti")}
+                    >
                       <Plus className="h-4 w-4" /> Nuova conversazione
                     </button>
                   </div>
 
                   <div className="h-[calc(100%-140px)] overflow-y-auto">
-                    {filteredConversations.map((c) => (
-                      <button key={c.id} onClick={() => openConversation(c.id)} className={`flex w-full items-center gap-3 border-b px-4 py-3 text-left hover:bg-muted/50 ${selected === c.id ? "bg-primary/5 border-l-2 border-l-primary" : ""}`}>
-                        <Avatar className="h-10 w-10"><AvatarImage src={c.participant?.avatar ?? undefined} /><AvatarFallback>{c.name[0]}</AvatarFallback></Avatar>
-                        <div className="min-w-0 flex-1">
-                          <div className="flex items-center justify-between"><span className="truncate text-sm font-medium">{c.name}</span><span className="text-[11px] text-muted-foreground">{c.lastTime?.slice(11,16) ?? ""}</span></div>
-                          <div className="truncate text-xs text-muted-foreground">{c.lastMessage}</div>
+                    {filteredConversations.length > 0 ? (
+                      filteredConversations.map((c) => (
+                        <button key={c.id} onClick={() => openConversation(c.id)} className={`flex w-full items-center gap-3 border-b px-4 py-3 text-left hover:bg-muted/50 ${selected === c.id ? "bg-primary/5 border-l-2 border-l-primary" : ""}`}>
+                          <Avatar className="h-10 w-10"><AvatarImage src={c.participant?.avatar ?? undefined} /><AvatarFallback>{c.name[0]}</AvatarFallback></Avatar>
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-center justify-between"><span className="truncate text-sm font-medium">{c.name}</span><span className="text-[11px] text-muted-foreground">{c.lastTime?.slice(11,16) ?? ""}</span></div>
+                            <div className="truncate text-xs text-muted-foreground">{c.lastMessage}</div>
+                          </div>
+                          {c.unread > 0 ? <span className="rounded-full bg-primary px-1.5 text-xs text-white">{c.unread}</span> : null}
+                        </button>
+                      ))
+                    ) : (
+                      <div className="p-4">
+                        <div className="mb-3 text-sm text-muted-foreground">Nessuna conversazione. Avvia una chat con un contatto:</div>
+                        <div className="space-y-2">
+                          {contacts.slice(0, 8).map((c) => (
+                            <div key={`quick-${c.id}`} className="flex items-center justify-between rounded-lg border p-2">
+                              <div className="flex min-w-0 items-center gap-2">
+                                <Avatar className="h-8 w-8"><AvatarImage src={c.avatar ?? undefined} /><AvatarFallback>{c.name[0]}</AvatarFallback></Avatar>
+                                <div className="min-w-0">
+                                  <div className="truncate text-sm font-medium">{c.name}</div>
+                                  <div className="truncate text-xs text-muted-foreground">{c.role ?? "Utente"}</div>
+                                </div>
+                              </div>
+                              <Button size="sm" onClick={() => void startDirectFromContact(c.id)}>Avvia chat</Button>
+                            </div>
+                          ))}
                         </div>
-                        {c.unread > 0 ? <span className="rounded-full bg-primary px-1.5 text-xs text-white">{c.unread}</span> : null}
-                      </button>
-                    ))}
+                      </div>
+                    )}
                   </div>
                 </section>
 
