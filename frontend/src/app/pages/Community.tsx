@@ -413,30 +413,6 @@ export function Community() {
                 </div>
               ))}
             </div>
-            <div className="mt-2 space-y-2 lg:hidden">
-              {data.suggestions.map((s) => (
-                <div key={`mobile-suggest-${s.id}`} className="flex items-center justify-between rounded-xl border px-3 py-2">
-                  <div className="flex min-w-0 items-center gap-2">
-                    <Avatar className="h-9 w-9">
-                      <AvatarImage src={s.avatar ?? undefined} />
-                      <AvatarFallback>{s.name[0]}</AvatarFallback>
-                    </Avatar>
-                    <div className="min-w-0">
-                      <div className="truncate text-sm font-medium">{s.name}</div>
-                      <div className="truncate text-xs text-zinc-500">{s.role ?? "Utente"}</div>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Button size="sm" variant="outline" onClick={() => void toggleFollow(s.id).then(refresh)} className="rounded-full">
-                      {s.isFollowing ? "Seguito" : "Segui"}
-                    </Button>
-                    <Button size="sm" onClick={() => void onMessage(s.id)} className="rounded-full">
-                      Messaggio
-                    </Button>
-                  </div>
-                </div>
-              ))}
-            </div>
           </section>
 
           {bottomFeedPosts.map(renderPost)}
