@@ -344,7 +344,7 @@ export function Community() {
           </div>
 
           <div className="border-b px-3 py-3">
-            <div className="flex gap-3 overflow-x-auto pb-1">
+            <div className="flex touch-pan-x gap-3 overflow-x-auto pb-1 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
               <button type="button" className="min-w-[72px] text-center" onClick={openCreateStoryModal}>
                 <div className="mx-auto mb-1 rounded-full bg-zinc-200 p-[2px]">
                   <div className="flex h-16 w-16 items-center justify-center rounded-full border-2 border-white bg-zinc-100">
@@ -389,7 +389,7 @@ export function Community() {
 
           <section className="px-3 py-4">
             <div className="mb-3 text-sm font-semibold text-zinc-600">Suggeriti per te</div>
-            <div className="-mx-3 flex snap-x snap-mandatory gap-3 overflow-x-auto px-3 pb-2">
+            <div className="-mx-3 flex touch-pan-x snap-x snap-mandatory gap-3 overflow-x-auto px-3 pb-2 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
               {data.suggestions.map((s) => (
                 <div key={s.id} className="w-[220px] shrink-0 snap-start rounded-2xl border bg-white p-3">
                   <div className="mb-3 flex items-center gap-2">
@@ -407,6 +407,30 @@ export function Community() {
                       {s.isFollowing ? "Seguito" : "Segui"}
                     </Button>
                     <Button size="sm" onClick={() => void onMessage(s.id)} className="flex-1 rounded-full">
+                      Messaggio
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="mt-2 space-y-2 lg:hidden">
+              {data.suggestions.map((s) => (
+                <div key={`mobile-suggest-${s.id}`} className="flex items-center justify-between rounded-xl border px-3 py-2">
+                  <div className="flex min-w-0 items-center gap-2">
+                    <Avatar className="h-9 w-9">
+                      <AvatarImage src={s.avatar ?? undefined} />
+                      <AvatarFallback>{s.name[0]}</AvatarFallback>
+                    </Avatar>
+                    <div className="min-w-0">
+                      <div className="truncate text-sm font-medium">{s.name}</div>
+                      <div className="truncate text-xs text-zinc-500">{s.role ?? "Utente"}</div>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Button size="sm" variant="outline" onClick={() => void toggleFollow(s.id).then(refresh)} className="rounded-full">
+                      {s.isFollowing ? "Seguito" : "Segui"}
+                    </Button>
+                    <Button size="sm" onClick={() => void onMessage(s.id)} className="rounded-full">
                       Messaggio
                     </Button>
                   </div>
@@ -461,7 +485,7 @@ export function Community() {
           <button onClick={() => toast.info("Ricerca in arrivo")}><Search className="h-6 w-6" /></button>
           <button onClick={() => toast.info("Reels in arrivo")}><Clapperboard className="h-6 w-6" /></button>
           <button onClick={() => nav("/chat")}><Send className="h-6 w-6" /></button>
-          <button onClick={() => toast.info("Profilo base")}><UserCircle2 className="h-6 w-6" /></button>
+          <button onClick={() => nav("/profile")}><UserCircle2 className="h-6 w-6" /></button>
         </div>
       </nav>
 

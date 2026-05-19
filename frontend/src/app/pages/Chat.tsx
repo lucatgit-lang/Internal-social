@@ -19,6 +19,7 @@ export function Chat() {
   const [selected, setSelected] = useState<string | null>(null);
   const [messages, setMessages] = useState<Array<{ id: string; senderId: string; text: string; time: string }>>([]);
   const [messageText, setMessageText] = useState("");
+  const [mobileThreadOpen, setMobileThreadOpen] = useState(false);
 
   const [contacts, setContacts] = useState<Array<{ id: string; name: string; role: string | null; email: string; avatar: string | null }>>([]);
   const [emails, setEmails] = useState<Array<{ id: string; from: string; subject: string; body: string; time: string; read: boolean; starred: boolean }>>([]);
@@ -69,6 +70,11 @@ export function Chat() {
     await loadCore();
   };
 
+  const openConversation = (id: string) => {
+    setSelected(id);
+    setMobileThreadOpen(true);
+  };
+
   return (
     <div className="min-h-screen bg-background text-foreground">
       <SocialSidebar active="chat" />
@@ -76,7 +82,7 @@ export function Chat() {
       <main className="lg:ml-[286px]">
         <div className="h-screen overflow-hidden border-l">
           <div className="flex h-full flex-col">
-            <div className="flex items-center gap-2 border-b bg-card px-6 py-3">
+            <div className="flex items-center gap-2 overflow-x-auto border-b bg-card px-3 py-3 md:px-6">
               {[
                 { key: "chat" as Tab, label: "Chat", icon: MessageSquare, count: totalUnread },
                 { key: "email" as Tab, label: "Email", icon: Mail, count: unreadEmails },
@@ -99,11 +105,11 @@ export function Chat() {
               <div className="p-4 text-sm text-muted-foreground">
                 {activeTab === "email" && emails.map((e) => <div key={e.id} className="mb-2 rounded border p-3"><div className="font-medium">{e.subject}</div><div className="text-xs">{e.from}</div></div>)}
                 {activeTab === "video" && videos.map((v) => <div key={v.id} className="mb-2 rounded border p-3 text-sm">{v.with} · {v.type}</div>)}
-                {activeTab === "contatti" && contacts.map((c) => <div key={c.id} className="mb-2 flex items-center justify-between rounded border p-3"><div className="flex items-center gap-2"><Avatar className="h-8 w-8"><AvatarImage src={c.avatar ?? undefined} /><AvatarFallback>{c.name[0]}</AvatarFallback></Avatar><div><div className="text-sm">{c.name}</div><div className="text-xs text-muted-foreground">{c.role}</div></div></div><Button size="sm" onClick={() => void openOrCreateDirect(c.id).then((r)=>{setActiveTab("chat"); setSelected(r.data.conversationId);})}>+ Chat</Button></div>)}
+                {activeTab === "contatti" && contacts.map((c) => <div key={c.id} className="mb-2 flex items-center justify-between rounded border p-3"><div className="flex items-center gap-2"><Avatar className="h-8 w-8"><AvatarImage src={c.avatar ?? undefined} /><AvatarFallback>{c.name[0]}</AvatarFallback></Avatar><div><div className="text-sm">{c.name}</div><div className="text-xs text-muted-foreground">{c.role}</div></div></div><Button size="sm" onClick={() => void openOrCreateDirect(c.id).then((r)=>{setActiveTab("chat"); setSelected(r.data.conversationId); setMobileThreadOpen(true);})}>+ Chat</Button></div>)}
               </div>
             ) : (
               <div className="flex min-h-0 flex-1">
-                <section className="w-80 shrink-0 border-r">
+                <section className={`${mobileThreadOpen ? "hidden" : "block"} w-full shrink-0 border-r md:w-80`}>
                   <div className="space-y-3 border-b p-4">
                     <div className="relative">
                       <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -126,7 +132,7 @@ export function Chat() {
 
                   <div className="h-[calc(100%-140px)] overflow-y-auto">
                     {filteredConversations.map((c) => (
-                      <button key={c.id} onClick={() => setSelected(c.id)} className={`flex w-full items-center gap-3 border-b px-4 py-3 text-left hover:bg-muted/50 ${selected === c.id ? "bg-primary/5 border-l-2 border-l-primary" : ""}`}>
+                      <button key={c.id} onClick={() => openConversation(c.id)} className={`flex w-full items-center gap-3 border-b px-4 py-3 text-left hover:bg-muted/50 ${selected === c.id ? "bg-primary/5 border-l-2 border-l-primary" : ""}`}>
                         <Avatar className="h-10 w-10"><AvatarImage src={c.participant?.avatar ?? undefined} /><AvatarFallback>{c.name[0]}</AvatarFallback></Avatar>
                         <div className="min-w-0 flex-1">
                           <div className="flex items-center justify-between"><span className="truncate text-sm font-medium">{c.name}</span><span className="text-[11px] text-muted-foreground">{c.lastTime?.slice(11,16) ?? ""}</span></div>
@@ -138,9 +144,16 @@ export function Chat() {
                   </div>
                 </section>
 
-                <section className="flex min-w-0 flex-1 flex-col">
-                  <div className="flex items-center justify-between border-b px-6 py-4">
+                <section className={`${mobileThreadOpen ? "flex" : "hidden"} min-w-0 flex-1 flex-col md:flex`}>
+                  <div className="flex items-center justify-between border-b px-4 py-4 md:px-6">
                     <div>
+                      <button
+                        type="button"
+                        className="mb-1 text-xs text-primary md:hidden"
+                        onClick={() => setMobileThreadOpen(false)}
+                      >
+                        ← Conversazioni
+                      </button>
                       <div className="text-2 font-semibold">{selectedConversation?.name ?? "Seleziona conversazione"}</div>
                       <div className="text-xs text-muted-foreground">{selectedConversation?.participant?.title ?? ""}</div>
                     </div>
@@ -151,7 +164,7 @@ export function Chat() {
                     </div>
                   </div>
 
-                  <div className="flex-1 overflow-y-auto p-6">
+                  <div className="flex-1 overflow-y-auto p-4 md:p-6">
                     {messages.map((m) => {
                       const mine = selectedConversation?.participant ? m.senderId !== selectedConversation.participant.id : false;
                       return (
@@ -165,7 +178,7 @@ export function Chat() {
                     })}
                   </div>
 
-                  <div className="border-t p-3">
+                  <div className="border-t p-2 md:p-3">
                     <div className="flex items-center gap-2 rounded-2xl border bg-card px-3 py-2">
                       <Paperclip className="h-4 w-4 text-muted-foreground" />
                       <Input value={messageText} onChange={(e) => setMessageText(e.target.value)} placeholder="Scrivi un messaggio..." className="border-0 bg-transparent shadow-none focus-visible:ring-0" onKeyDown={(e) => e.key === "Enter" && void send()} />
